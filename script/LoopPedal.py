@@ -27,11 +27,6 @@ class LoopPedal(ControlSurface):
 
             # write your init code here
 
-    def disconnect(self):
-        """clean up on disconnect"""
-        ControlSurface.disconnect(self)
-        return None
-
     def _load_mappings(self):
         momentary = True
 
@@ -52,3 +47,8 @@ class LoopPedal(ControlSurface):
             control.name = "Ctrl_" + str(ctrl)
             self._ctrl_map.append(control)
         self._ctrl_map.append(None)
+
+    def disconnect(self):
+        """clean up on disconnect"""
+        ControlSurface.disconnect(self)
+        return None
