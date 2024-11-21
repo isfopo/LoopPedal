@@ -27,11 +27,16 @@ class LoopPedal(ControlSurface):
 
             # write your init code here
 
+    @property
     def song(self) -> Live.Song.Song:
         return super().song()
 
+    @property
     def tracks(self) -> List[Live.Track.Track]:
-        return cast(List[Live.Track.Track], self.song().tracks)
+        return cast(List[Live.Track.Track], self.song.tracks)
+
+    def _find_loop_tracks(self) -> List[Live.Track.Track]:
+        return [track for track in self.tracks if str(track.name).startswith("Looper")]
 
     def _load_mappings(self):
         momentary = True
