@@ -1,8 +1,8 @@
 install:
-	python3 scripts/install.py --name LoopPedal
+	python3 runners/install.py --name LoopPedal
 
 watch:
-	python3 scripts/watch.py --version 'Live 12.1.1'
+	python3 runners/watch.py --version 'Live 12.1.1' --name 'LoopPedal'
 
 close-set:
 	pkill -x Ableton Live 12 Suite
