@@ -1,5 +1,5 @@
 from __future__ import with_statement
-from typing import cast
+from typing import cast, List
 import Live
 
 from _Framework.ControlSurface import ControlSurface
@@ -23,9 +23,15 @@ class LoopPedal(ControlSurface):
 
             self._note_map = []
             self._ctrl_map = []
-            self._load_MIDI_map()
+            self._load_mappings()
 
             # write your init code here
+
+    def song(self) -> Live.Song.Song:
+        return super().song()
+
+    def tracks(self) -> List[Live.Track.Track]:
+        return cast(List[Live.Track.Track], self.song().tracks)
 
     def _load_mappings(self):
         momentary = True
