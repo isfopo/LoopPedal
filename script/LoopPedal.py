@@ -8,6 +8,8 @@ from _Framework.ButtonElement import ButtonElement
 
 from .mappings import types, BUTTONCHANNEL, SLIDERCHANNEL
 
+from LoopTrack import LoopTrack
+
 
 class LoopPedal(ControlSurface):
     __module__ = __name__
@@ -21,11 +23,12 @@ class LoopPedal(ControlSurface):
             self._live_minor_version = live.get_minor_version()
             self._live_bugfix_version = live.get_bugfix_version()
 
+            self.loop_tracks: List[Live.Track.Track] = []
+
             self._note_map = []
             self._ctrl_map = []
-            self._load_mappings()
 
-            # write your init code here
+            self._load_mappings()
 
     @property
     def song(self) -> Live.Song.Song:
@@ -38,26 +41,18 @@ class LoopPedal(ControlSurface):
     def _find_loop_tracks(self) -> List[Live.Track.Track]:
         return [track for track in self.tracks if str(track.name).startswith("Looper")]
 
+    def init_loop_tracks(self) -> None:
+        loop_tracks = self._find_loop_tracks()
+        for i, track in enumerate(loop_tracks):
+            LoopTrack(track, self._note_map[i])
+
     def _load_mappings(self):
         momentary = True
-
-        for note in range(128):
-            button = ButtonElement(momentary, types.NOTE, BUTTONCHANNEL, note)
-            button.name = "Note_" + str(note)
-            self._note_map.append(button)
-        self._note_map.append(None)
 
         for ctrl in range(128):
             control = ButtonElement(momentary, types.CC, BUTTONCHANNEL, ctrl)
             control.name = "Ctrl_" + str(control)
             self._ctrl_map.append(control)
-        self._note_map.append(None)
-
-        for ctrl in range(128):
-            control = SliderElement(types.CC, SLIDERCHANNEL, ctrl)
-            control.name = "Ctrl_" + str(ctrl)
-            self._ctrl_map.append(control)
-        self._ctrl_map.append(None)
 
     def disconnect(self):
         """clean up on disconnect"""
