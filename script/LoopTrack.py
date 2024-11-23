@@ -1,8 +1,9 @@
-from typing import cast, Literal, Callable, Union, List
+from typing import cast, Literal, Union, List, Callable
 from _Framework.ButtonElement import ButtonElement
 from datetime import datetime
 
-from Live import Song, Track
+from Live import Song, Track, Clip
+from .helpers.tracks import arm, get_first_empty_clip_slot
 from .consts import POST_RECORD_MODE
 
 
@@ -13,6 +14,7 @@ class LoopTrack:
     original_track: Track.Track
     recording_track: Track.Track
     duplicate_tracks: List[Track.Track]
+    active_clip: Union[Clip.Clip, None]
 
     button: ButtonElement
     long_press_duration: float
@@ -46,9 +48,6 @@ class LoopTrack:
 
         self.button.add_value_listener(self.on_button_value)
 
-    def arm(self) -> None:
-        cast(Callable, self.original_track.arm)()
-
     def on_button_value(self, value: int) -> None:
         # press
         if value > 0:
@@ -66,7 +65,12 @@ class LoopTrack:
         if self.mode == "stop":
             self.mode = "record"
             # arm original track
-            # start recording first available clip
+            if arm(self.original_track):
+                # fire first clip slot
+                clip_slot = get_first_empty_clip_slot(self.original_track)
+                if clip_slot is not None:
+                    cast(Callable, clip_slot.fire)()
+                    self.active_clip = clip_slot.clip
 
         elif self.mode == "record":
             self.mode = POST_RECORD_MODE
