@@ -3,14 +3,17 @@ from _Framework.ButtonElement import ButtonElement
 from datetime import datetime
 
 from Live import Song, Track
+from .consts import POST_RECORD_MODE
 
 
 class LoopTrack:
     mode: Literal["record", "play", "overdub", "stop"]
+
     song: Song.Song
     original_track: Track.Track
     recording_track: Track.Track
     duplicate_tracks: List[Track.Track]
+
     button: ButtonElement
     long_press_duration: float
     _pressed_at: Union[float, None]
@@ -61,25 +64,29 @@ class LoopTrack:
 
     def on_button_press(self) -> None:
         if self.mode == "stop":
+            self.mode = "record"
             # arm original track
             # start recording first available clip
-            pass
+
         elif self.mode == "record":
+            self.mode = POST_RECORD_MODE
             # stop recording original track
             # duplicate original track
             # arm duplicated track
             # fire clip on duplicated track
             # add Live.Clip.Clip.add_loop_end_listener() to create a new track when loop ends
-            pass
+
         elif self.mode == "play":
-            pass
+            self.mode = "overdub"
+
         elif self.mode == "overdub":
-            pass
+            self.mode = "play"
 
     def _loop_end_listener(self):
         if self.mode == "play":
             # continue looping clip
             pass
+
         elif self.mode == "overdub":
             # duplicate original track
             # arm duplicated track
