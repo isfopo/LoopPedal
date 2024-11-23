@@ -3,7 +3,7 @@ from _Framework.ButtonElement import ButtonElement
 from datetime import datetime
 
 from Live import Song, Track, Clip
-from .helpers.tracks import arm, get_first_empty_clip_slot
+from .helpers.tracks import arm, duplicate_track, get_first_empty_clip_slot, unarm
 from .consts import POST_RECORD_MODE
 
 
@@ -75,7 +75,11 @@ class LoopTrack:
         elif self.mode == "record":
             self.mode = POST_RECORD_MODE
             # stop recording original track
-            # duplicate original track
+            if self.active_clip is not None:
+                unarm(self.original_track)
+                cast(Callable, self.active_clip.fire)()
+                # duplicate original track
+                duplicate_track(self.song, self.original_track)
             # arm duplicated track
             # fire clip on duplicated track
             # add Live.Clip.Clip.add_loop_end_listener() to create a new track when loop ends
