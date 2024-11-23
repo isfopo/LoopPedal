@@ -44,7 +44,7 @@ class LoopPedal(ControlSurface):
     def init_loop_tracks(self) -> None:
         loop_tracks = self._find_loop_tracks()
         for i, track in enumerate(loop_tracks):
-            LoopTrack(track, self._note_map[i])
+            LoopTrack(self.song, track, self._note_map[i])
 
     def _load_mappings(self):
         momentary = True
