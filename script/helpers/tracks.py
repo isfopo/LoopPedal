@@ -1,5 +1,5 @@
 from typing import cast, List, Union, Callable
-from Live import Track, ClipSlot, Song
+from Live import Track, ClipSlot, Song, Clip
 
 
 def arm(track: Track.Track) -> bool:
@@ -40,3 +40,22 @@ def duplicate_track(song: Song.Song, track: Track.Track) -> Track.Track:
     track_index = list(cast(List[Track.Track], song.tracks)).index(track)
     song.duplicate_track(track_index, None)
     return cast(Callable, cast(Song.Song.View, song.view).selected_track)()
+
+
+def get_track_of_clip(clip: Clip.Clip) -> Track.Track:
+    """
+    Retrieves the track associated with a given clip.
+
+    This function takes a Clip object as a parameter and traverses its
+    parent hierarchy to obtain the Track object that contains the clip.
+    It assumes that the clip is part of a ClipSlot, which in turn is
+    part of a Track.
+
+    Parameters:
+        clip (Clip.Clip): The Clip object whose associated Track is to be retrieved.
+    Returns:
+        Track.Track: The Track object that contains the specified clip.
+    """
+    return cast(
+        Track.Track, cast(ClipSlot.ClipSlot, clip.canonical_parent).canonical_parent
+    )

@@ -3,7 +3,13 @@ from _Framework.ButtonElement import ButtonElement
 from datetime import datetime
 
 from Live import Song, Track, Clip
-from .helpers.tracks import arm, duplicate_track, get_first_empty_clip_slot, unarm
+from .helpers.tracks import (
+    arm,
+    duplicate_track,
+    get_first_empty_clip_slot,
+    get_track_of_clip,
+    unarm,
+)
 from .consts import POST_RECORD_MODE
 
 
@@ -75,23 +81,7 @@ class LoopTrack:
         elif self.mode == "record":
             self.mode = POST_RECORD_MODE
             # stop recording original track
-            if self.active_clip is not None:
-                unarm(self.original_track)
-                cast(Callable, self.active_clip.fire)()
-                # duplicate original track
-                duplicated_track = duplicate_track(self.song, self.original_track)
-                self.duplicate_tracks.append(duplicated_track)
-                # arm duplicated track
-                cast(Callable, duplicated_track.arm)()
-                # fire clip on duplicated track
-                clip_slot = get_first_empty_clip_slot(duplicated_track)
-                if clip_slot is not None:
-                    cast(Callable, clip_slot.fire)()
-                    self.active_clip = cast(Clip.Clip, clip_slot.clip)
-
-                    cast(Callable, self.active_clip.add_loop_end_listener)(
-                        self._loop_end_listener
-                    )
+            self.create_and_fire_next_track()
 
         elif self.mode == "play":
             self.mode = "overdub"
@@ -105,12 +95,32 @@ class LoopTrack:
             pass
 
         elif self.mode == "overdub":
+            if self.active_clip is not None:
+                cast(Callable, self.active_clip.remove_loop_end_listener)(
+                    self._loop_end_listener
+                )
+
+            self.create_and_fire_next_track()
+
+    def create_and_fire_next_track(self) -> None:
+        if self.active_clip is not None:
+            parent_track = get_track_of_clip(self.active_clip)
+            unarm(parent_track)
+            cast(Callable, self.active_clip.fire)()
             # duplicate original track
+            duplicated_track = duplicate_track(self.song, parent_track)
+            self.duplicate_tracks.append(duplicated_track)
             # arm duplicated track
-            # call Live.Clip.Clip.remove_loop_end_listener() on previous clip
+            cast(Callable, duplicated_track.arm)()
             # fire clip on duplicated track
-            # add Live.Clip.Clip.add_loop_end_listener() to create a new track when loop ends
-            pass
+            clip_slot = get_first_empty_clip_slot(duplicated_track)
+            if clip_slot is not None:
+                cast(Callable, clip_slot.fire)()
+                self.active_clip = cast(Clip.Clip, clip_slot.clip)
+
+                cast(Callable, self.active_clip.add_loop_end_listener)(
+                    self._loop_end_listener
+                )
 
     def on_button_long_press(self) -> None:
         if self.mode != "stop":
