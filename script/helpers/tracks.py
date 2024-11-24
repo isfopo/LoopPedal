@@ -1,4 +1,4 @@
-from typing import cast, List, Union
+from typing import cast, List, Union, Callable
 from Live import Track, ClipSlot, Song
 
 
@@ -22,7 +22,7 @@ def get_first_empty_clip_slot(track: Track.Track) -> Union[ClipSlot.ClipSlot, No
             return clip_slot
 
 
-def duplicate_track(song: Song.Song, track: Track.Track):
+def duplicate_track(song: Song.Song, track: Track.Track) -> Track.Track:
     """
     Duplicates a specified track within a given song.
 
@@ -35,7 +35,8 @@ def duplicate_track(song: Song.Song, track: Track.Track):
         track (Track.Track): The Track object to be duplicated.
 
     Returns:
-        None
+        Track.Track: The duplicated Track object.
     """
     track_index = list(cast(List[Track.Track], song.tracks)).index(track)
     song.duplicate_track(track_index, None)
+    return cast(Callable, cast(Song.Song.View, song.view).selected_track)()
