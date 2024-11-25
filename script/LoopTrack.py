@@ -1,4 +1,4 @@
-from typing import cast, Literal, Union, List, Callable
+from typing import cast, Literal, Union, List, Callable, Dict
 from _Framework.ButtonElement import ButtonElement
 from datetime import datetime
 
@@ -10,7 +10,7 @@ from .helpers.tracks import (
     get_track_of_clip,
     unarm,
 )
-from .consts import POST_RECORD_MODE
+from .consts import LOOPER_TRACK_IDENTIFIER, POST_RECORD_MODE
 
 
 class LoopTrack:
@@ -133,3 +133,15 @@ class LoopTrack:
             # self.song.delete_track(track)
             pass
         self.duplicate_tracks = []
+
+    @staticmethod
+    def parse_track_options(track_name: str) -> Dict:
+        try:
+            return {
+                option.split(":")[0].strip(): option.split(":")[1].strip()
+                for option in track_name.removeprefix(LOOPER_TRACK_IDENTIFIER).split(
+                    ","
+                )
+            }
+        except IndexError:
+            return {}

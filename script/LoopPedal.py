@@ -4,18 +4,19 @@ import Live
 
 from _Framework.ControlSurface import ControlSurface
 from _Framework.ButtonElement import ButtonElement
+from .consts import LOOPER_TRACK_IDENTIFIER
 
 from .mappings import types, BUTTONCHANNEL
 
-from LoopTrack import LoopTrack
+from .LoopTrack import LoopTrack
 
 
 class LoopPedal(ControlSurface):
     __module__ = __name__
-    __doc__ = "Simple Starter Script"
+    __doc__ = "Looper Pedal"
 
     def __init__(self, c_instance):
-        ControlSurface.__init__(self, c_instance)
+        super().__init__(c_instance)
         with self.component_guard():
             live = cast(Live.Application, Live.Application.get_application())
             self._live_major_version = live.get_major_version()
@@ -24,7 +25,6 @@ class LoopPedal(ControlSurface):
 
             self.loop_tracks: List[Live.Track.Track] = []
 
-            self._note_map = []
             self._ctrl_map = []
 
             self._load_mappings()
@@ -38,12 +38,18 @@ class LoopPedal(ControlSurface):
         return cast(List[Live.Track.Track], self.song.tracks)
 
     def _find_loop_tracks(self) -> List[Live.Track.Track]:
-        return [track for track in self.tracks if str(track.name).startswith("Looper")]
+        return [
+            track
+            for track in self.tracks
+            if str(track.name).startswith(LOOPER_TRACK_IDENTIFIER)
+        ]
 
     def init_loop_tracks(self) -> None:
         loop_tracks = self._find_loop_tracks()
-        for i, track in enumerate(loop_tracks):
-            LoopTrack(self.song, track, self._note_map[i])
+        for track in loop_tracks:
+            options = LoopTrack.parse_track_options(cast(str, track.name))
+            LoopTrack(self.song, track, self._ctrl_map[int(options["note"])])
+            self.loop_tracks.append(track)
 
     def _load_mappings(self):
         momentary = True

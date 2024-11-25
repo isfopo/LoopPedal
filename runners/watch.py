@@ -86,8 +86,7 @@ def refresh(filename):
     os.system("cls" if platform.system() == "Windows" else "clear")
     with open(filename, encoding="utf-8") as file:
         for line in file.readlines()[-500:]:
-            if "RemoteScript" in line and name in line:
-                print(line, end="")
+            print(line, end="")
 
 
 abletonPath = (

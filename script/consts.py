@@ -1,1 +1,2 @@
 POST_RECORD_MODE = "overdub"
+LOOPER_TRACK_IDENTIFIER = "Looper"
