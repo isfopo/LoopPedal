@@ -5,8 +5,6 @@
 
 .DS_Store
 
-/.pio
-
 /set
 
 # Byte-compiled / optimized / DLL files
@@ -123,6 +121,4 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-
-.vscode
 
