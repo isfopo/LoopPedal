@@ -5,6 +5,8 @@
 
 .DS_Store
 
+/.pio
+
 /set
 
 # Byte-compiled / optimized / DLL files
