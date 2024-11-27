@@ -1,0 +1,19 @@
+{
+  "name": "enclosure",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "tsc-watch index.ts",
+    "build": "tsc index.ts && jscad ."
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@jscad/cli": "^2.3.2",
+    "@jscad/modeling": "^2.12.2",
+    "@types/node": "^22.0.0",
+    "tsc-watch": "^6.2.0",
+    "typescript": "^5.5.3"
+  }
+}

@@ -1,3 +1,5 @@
+## Script
+
 install:
 	python3 runners/install.py --name LoopPedal
 
@@ -12,3 +14,11 @@ open-set:
 
 reload:
 	just install && just close-set && sleep 1 && just open-set
+
+
+## Hardware
+
+### Enclosure
+
+
+	cd hardware/enclosure && npm start
