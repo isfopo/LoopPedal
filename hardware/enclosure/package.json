@@ -1,10 +1,10 @@
 {
   "name": "enclosure",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "LoopPedalEnclosure.js",
   "scripts": {
-    "start": "tsc-watch index.ts",
-    "build": "tsc index.ts && jscad ."
+    "start": "tsc-watch LoopPedalEnclosure.ts",
+    "build": "tsc LoopPedalEnclosure.ts && jscad ."
   },
   "author": "",
   "license": "ISC",
