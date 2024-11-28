@@ -1,7 +1,8 @@
-import { arc, circle, line } from "@jscad/modeling/src/primitives";
+import { arc, circle, cylinder, line } from "@jscad/modeling/src/primitives";
 import { extrudeLinear } from "@jscad/modeling/src/operations/extrusions";
 import { expand } from "@jscad/modeling/src/operations/expansions";
-import { union } from "@jscad/modeling/src/operations/booleans";
+import { subtract, union } from "@jscad/modeling/src/operations/booleans";
+import { rotate, translate } from "@jscad/modeling/src/operations/transforms";
 import convert from "convert";
 
 interface SectionOptions {
@@ -23,14 +24,14 @@ const section = {
 
 const buttons = {
   diameter: convert(1 / 2, "in").to("mm"),
-  count: 8,
+  countPerSection: 2,
 };
 
 const dimensions = {
-  face: convert(3, "in").to("mm"),
-  back: convert(3 / 2, "in").to("mm"),
+  face: convert(4, "in").to("mm"),
+  back: convert(2, "in").to("mm"),
   angle: convert(80, "deg").to("rad"),
-  thickness: convert(1 / 16, "in").to("mm"),
+  thickness: convert(3 / 32, "in").to("mm"),
 };
 
 const sectionGeo = ({ isEndSection }: SectionOptions) => {
@@ -56,9 +57,38 @@ const sectionGeo = ({ isEndSection }: SectionOptions) => {
     [0, -(rod.diameter / 2 + dimensions.thickness / 2)],
   ]);
 
-  return extrudeLinear(
-    { height: section.width(isEndSection) },
-    expand({ delta: dimensions.thickness }, ...shafts, face, back)
+  const buttonGeo = (i: number) =>
+    cylinder({
+      radius: buttons.diameter / 2,
+      height: dimensions.thickness * 2,
+      center: [
+        i * (section.width(isEndSection) / buttons.countPerSection),
+        dimensions.face / 2,
+        0,
+      ],
+    });
+
+  const buttonsGeo = rotate(
+    [0, -Math.PI / 2, 0],
+    translate(
+      [
+        -section.width(isEndSection) / buttons.countPerSection / 2,
+        0,
+        -(rod.diameter / 2 + dimensions.thickness / 2),
+      ],
+      buttonGeo(1),
+      buttonGeo(2)
+    )
+  );
+
+  return subtract(
+    union(
+      extrudeLinear(
+        { height: section.width(isEndSection) },
+        expand({ delta: dimensions.thickness }, ...shafts, face, back)
+      )
+    ),
+    buttonsGeo
   );
 };
 
