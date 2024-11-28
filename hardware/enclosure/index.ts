@@ -35,26 +35,28 @@ const dimensions = {
 };
 
 const sectionGeo = ({ isEndSection }: SectionOptions) => {
+  const offsetRadius = rod.diameter / 2 + dimensions.thickness / 2;
+
   const shafts = [
-    arc({ radius: rod.diameter / 2 + dimensions.thickness / 2 }),
+    arc({ radius: offsetRadius }),
     arc({
-      radius: rod.diameter / 2 + dimensions.thickness / 2,
+      radius: offsetRadius,
       center: [0, dimensions.face],
     }),
     arc({
-      radius: rod.diameter / 2 + dimensions.thickness / 2,
+      radius: offsetRadius,
       center: [-dimensions.back, 0],
     }),
   ];
 
   const face = line([
-    [rod.diameter / 2 + dimensions.thickness / 2, dimensions.face],
-    [rod.diameter / 2 + dimensions.thickness / 2, 0],
+    [offsetRadius, dimensions.face],
+    [offsetRadius, 0],
   ]);
 
   const back = line([
-    [-dimensions.back, -(rod.diameter / 2 + dimensions.thickness / 2)],
-    [0, -(rod.diameter / 2 + dimensions.thickness / 2)],
+    [-dimensions.back, -offsetRadius],
+    [0, -offsetRadius],
   ]);
 
   const buttonGeo = (i: number) =>
@@ -74,7 +76,7 @@ const sectionGeo = ({ isEndSection }: SectionOptions) => {
       [
         -section.width(isEndSection) / buttons.countPerSection / 2,
         0,
-        -(rod.diameter / 2 + dimensions.thickness / 2),
+        -offsetRadius,
       ],
       buttonGeo(1),
       buttonGeo(2)
