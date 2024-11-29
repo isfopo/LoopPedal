@@ -4,6 +4,7 @@ import { expand } from "@jscad/modeling/src/operations/expansions";
 import { subtract, union } from "@jscad/modeling/src/operations/booleans";
 import { rotate, translate } from "@jscad/modeling/src/operations/transforms";
 import convert from "convert";
+import { Geom2 } from "@jscad/modeling/src/geometries/types";
 
 interface SectionOptions {
   isEndSection: "left" | "right" | undefined;
@@ -90,7 +91,12 @@ const sectionGeo = ({ isEndSection }: SectionOptions) => {
         { height: section.adjustedWidth(isEndSection) },
         subtract(
           union(
-            expand({ delta: dimensions.thickness }, ...shafts(), face, back)
+            expand({ delta: dimensions.thickness }, ...shafts()),
+            expand(
+              { delta: dimensions.thickness },
+              face,
+              back
+            ) as unknown as Geom2[]
           ),
           ...shafts(true)
         )
