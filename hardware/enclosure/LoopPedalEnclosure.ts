@@ -1,4 +1,4 @@
-import { arc, circle, cylinder, line } from "@jscad/modeling/src/primitives";
+import { arc, cylinder, line } from "@jscad/modeling/src/primitives";
 import { extrudeLinear } from "@jscad/modeling/src/operations/extrusions";
 import { expand } from "@jscad/modeling/src/operations/expansions";
 import { subtract, union } from "@jscad/modeling/src/operations/booleans";
@@ -6,7 +6,8 @@ import { rotate, translate } from "@jscad/modeling/src/operations/transforms";
 import convert from "convert";
 
 interface SectionOptions {
-  isEndSection: boolean;
+  isEndSection: "left" | "right" | undefined;
+  hasPort: boolean;
 }
 
 const rod = {
@@ -18,7 +19,10 @@ const rod = {
 };
 
 const section = {
-  width: (isEndSection: boolean = false) =>
+  /** Width of each section */
+  width: rod.length / 4,
+  /** Accounts for the length of the nut */
+  adjustedWidth: (isEndSection: "left" | "right" | undefined) =>
     (rod.length - (isEndSection ? rod.nut.height : 0)) / 4,
 };
 
@@ -64,7 +68,8 @@ const sectionGeo = ({ isEndSection }: SectionOptions) => {
       radius: buttons.diameter / 2,
       height: dimensions.thickness * 2,
       center: [
-        i * (section.width(isEndSection) / buttons.countPerSection),
+        i * (section.width / buttons.countPerSection) -
+          (isEndSection === "right" ? rod.nut.height / 2 : 0),
         dimensions.face / 2,
         0,
       ],
@@ -73,11 +78,7 @@ const sectionGeo = ({ isEndSection }: SectionOptions) => {
   const buttonsGeo = rotate(
     [0, -Math.PI / 2, 0],
     translate(
-      [
-        -section.width(isEndSection) / buttons.countPerSection / 2,
-        0,
-        -offsetRadius,
-      ],
+      [-section.width / buttons.countPerSection / 2, 0, -offsetRadius],
       buttonGeo(1),
       buttonGeo(2)
     )
@@ -86,7 +87,7 @@ const sectionGeo = ({ isEndSection }: SectionOptions) => {
   return subtract(
     union(
       extrudeLinear(
-        { height: section.width(isEndSection) },
+        { height: section.adjustedWidth(isEndSection) },
         expand({ delta: dimensions.thickness }, ...shafts, face, back)
       )
     ),
@@ -95,5 +96,5 @@ const sectionGeo = ({ isEndSection }: SectionOptions) => {
 };
 
 export const main = () => {
-  return sectionGeo({ isEndSection: true });
+  return sectionGeo({ isEndSection: "right", hasPort: true });
 };
