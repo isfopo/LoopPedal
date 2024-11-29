@@ -1,4 +1,4 @@
-import { arc, cylinder, line } from "@jscad/modeling/src/primitives";
+import { arc, circle, cylinder, line } from "@jscad/modeling/src/primitives";
 import { extrudeLinear } from "@jscad/modeling/src/operations/extrusions";
 import { expand } from "@jscad/modeling/src/operations/expansions";
 import { subtract, union } from "@jscad/modeling/src/operations/booleans";
@@ -35,20 +35,20 @@ const dimensions = {
   face: convert(4, "in").to("mm"),
   back: convert(2, "in").to("mm"),
   angle: convert(80, "deg").to("rad"),
-  thickness: convert(3 / 32, "in").to("mm"),
+  thickness: convert(3 / 16, "in").to("mm"),
 };
 
 const sectionGeo = ({ isEndSection }: SectionOptions) => {
   const offsetRadius = rod.diameter / 2 + dimensions.thickness / 2;
 
-  const shafts = [
-    arc({ radius: offsetRadius }),
-    arc({
-      radius: offsetRadius,
+  const shafts = (inner?: boolean) => [
+    circle({ radius: inner ? rod.diameter / 2 : offsetRadius }),
+    circle({
+      radius: inner ? rod.diameter / 2 : offsetRadius,
       center: [0, dimensions.face],
     }),
-    arc({
-      radius: offsetRadius,
+    circle({
+      radius: inner ? rod.diameter / 2 : offsetRadius,
       center: [-dimensions.back, 0],
     }),
   ];
@@ -88,7 +88,12 @@ const sectionGeo = ({ isEndSection }: SectionOptions) => {
     union(
       extrudeLinear(
         { height: section.adjustedWidth(isEndSection) },
-        expand({ delta: dimensions.thickness }, ...shafts, face, back)
+        subtract(
+          union(
+            expand({ delta: dimensions.thickness }, ...shafts(), face, back)
+          ),
+          ...shafts(true)
+        )
       )
     ),
     buttonsGeo
