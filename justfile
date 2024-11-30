@@ -20,5 +20,5 @@ reload:
 
 ### Enclosure
 
-
+dev-enclosure:
 	cd hardware/enclosure && npm start
