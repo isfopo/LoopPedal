@@ -38,7 +38,7 @@ const port = {
 
 const dimensions = {
   face: convert(4, "in").to("mm"),
-  back: convert(2, "in").to("mm"),
+  back: convert(2.5, "in").to("mm"),
   angle: convert(80, "deg").to("rad"),
   thickness: convert(3 / 16, "in").to("mm"),
 };
