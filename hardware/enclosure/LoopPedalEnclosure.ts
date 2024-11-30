@@ -32,6 +32,10 @@ const buttons = {
   countPerSection: 2,
 };
 
+const port = {
+  diameter: convert(3 / 4, "in").to("mm"),
+};
+
 const dimensions = {
   face: convert(4, "in").to("mm"),
   back: convert(2, "in").to("mm"),
@@ -67,7 +71,7 @@ const sectionGeo = ({ isEndSection }: SectionOptions) => {
   const buttonGeo = (i: number) =>
     cylinder({
       radius: buttons.diameter / 2,
-      height: dimensions.thickness * 2,
+      height: dimensions.thickness * 3,
       center: [
         i * (section.width / buttons.countPerSection) -
           (isEndSection === "right" ? rod.nut.height / 2 : 0),
@@ -85,23 +89,35 @@ const sectionGeo = ({ isEndSection }: SectionOptions) => {
     )
   );
 
+  const portGeo = rotate(
+    [-Math.PI / 2, 0, 0],
+    cylinder({
+      radius: port.diameter / 2,
+      height: dimensions.thickness * 3,
+      center: [
+        -dimensions.back / 2,
+        -section.adjustedWidth(isEndSection) / 2,
+        -offsetRadius,
+      ],
+    })
+  );
+
   return subtract(
-    union(
-      extrudeLinear(
-        { height: section.adjustedWidth(isEndSection) },
-        subtract(
-          union(
-            expand({ delta: dimensions.thickness }, ...shafts()),
-            expand(
-              { delta: dimensions.thickness },
-              face,
-              back
-            ) as unknown as Geom2[]
-          ),
-          ...shafts(true)
-        )
+    extrudeLinear(
+      { height: section.adjustedWidth(isEndSection) },
+      subtract(
+        union(
+          expand({ delta: dimensions.thickness }, ...shafts()),
+          expand(
+            { delta: dimensions.thickness },
+            face,
+            back
+          ) as unknown as Geom2[]
+        ),
+        ...shafts(true)
       )
     ),
+    portGeo,
     buttonsGeo
   );
 };
